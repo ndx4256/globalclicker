@@ -1,7 +1,8 @@
-
 const express = require("express");
 const app = express();
-global.dataContents = require('./Data.json');
+var fs = require("fs");
+var global = require('./Data.json');
+// global.dataContents = require('./Data.json');
 
 
 // make all the files in 'public' available
@@ -17,34 +18,19 @@ app.get("/", (request, response) => {
 });
 app.get("/api/getdata", (request, response) => {
   response.setHeader("Access-Control-Allow-Origin", "*");
-  response.sendFile(__dirname + "/Data.json");
+  response.status(200).json(global.totalClicks);
 });
 app.post("/api/postclick", (request, response) => {
   response.setHeader("Access-Control-Allow-Origin", "*");
-  dataContents.totalClicks += 1;
+  response.status(200).send("wtf");
+  global.totalClicks++;
 });
-function savedata(jsonObj) {
-  "use strict";
 
-  var jsonContent = JSON.stringify(jsonObj);
-  console.log(jsonContent);
-  var fs = require("fs");
-  fs.writeFileSync("Data.json", jsonContent, "utf8", function(err) {
-    if (err) {
-      console.log("An error occured while writing JSON Object to File.");
-      return console.log(err);
-    }
-
-    console.log("JSON file has been saved.");
-  });
-}
-function saveClicks() {
-  savedata(dataContents);
-}
 // listen for requests :)
+setInterval(function () {
+  let stringifieddata = JSON.stringify(global);
+  fs.writeFileSync('Data.json', stringifieddata);
+}, 2000);
 const listener = app.listen(process.env.PORT, () => {
-  setInterval(function () {
-    saveClicks();
-  }, 1000);
   console.log("Your app is listening on port " + listener.address().port);
 });
